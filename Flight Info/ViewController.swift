@@ -176,7 +176,64 @@ private extension ViewController {
   }
   
   func depart() {
-		//TODO: Animate the plane taking off and landing
+		// Store the plane's center value
+		let originCenter = plane.center
+		// Create new keyframe animation
+		UIView.animateKeyframes(
+			withDuration: 1.5,
+			delay: 0,
+			animations: { [plane = self.plane!] in
+				// Move plane right & up
+				UIView.addKeyframe(
+					withRelativeStartTime: 0,
+					relativeDuration: 0.25,
+					animations: {
+						plane.center.x += 80
+						plane.center.y -= 10
+					}
+				)
+				// Rotate plane
+				UIView.addKeyframe(
+					withRelativeStartTime: 0.1,
+					relativeDuration: 0.4,
+					animations: {
+						plane.transform = .init(rotationAngle: -.pi / 8)
+					}
+				)
+				
+				// Move plane right and up off screen, while fading out
+				UIView.addKeyframe(
+					withRelativeStartTime: 0.25,
+					relativeDuration: 0.25,
+					animations: {
+						plane.center.x += 100
+						plane.center.y -= 50
+						plane.alpha = 0
+					}
+				)
+				
+				// Move plane just off left side, reset transform and height
+				UIView.addKeyframe(
+					withRelativeStartTime: 0.51,
+					relativeDuration: 0.01,
+					animations: {
+						plane.transform = .identity
+						plane.center = .init(x: 0, y: originCenter.y)
+					}
+				)
+				
+				// Move plane back to origin position & fade in
+				UIView.addKeyframe(
+					withRelativeStartTime: 0.55,
+					relativeDuration: 0.45,
+					animations: {
+						plane.alpha = 1
+						plane.center = originCenter
+					}
+				)
+			}
+		)
+		
   }
   
   func changeSummary(to summaryText: String) {
@@ -209,6 +266,8 @@ private extension ViewController {
 			)
 			
 			cubeTransition(label: statusLabel, text: flight.status)
+			
+			depart()
 			
     } else {
 			background.image = UIImage(named: flight.weatherImageName)
