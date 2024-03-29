@@ -70,9 +70,29 @@ private extension ViewController {
   //MARK:- Animations
 
   func fade(to image: UIImage, showEffects: Bool) {
-		//TODO: Create a crossfade animation for the background
-
-    //TODO: Create a fade animation for snowView
+		// Create & set up temp view
+		let tempView = UIImageView(frame: background.frame)
+		tempView.image = image
+		tempView.alpha = 0
+		tempView.center.y += 20
+		tempView.bounds.size.width = background.bounds.size.width * 1.3
+		background.superview!.insertSubview(tempView, aboveSubview: background)
+		
+		UIView.animate(
+			withDuration: 0.5,
+			animations: {
+				// Fade temp view in
+				tempView.alpha = 1
+				tempView.center.y -= 20
+				tempView.bounds.size = self.background.bounds.size
+			},
+			completion: { _ in
+				// Update background view & remove temp view
+				self.background.image = image
+				tempView.removeFromSuperview()
+			}
+		)
+		
   }
   
   func move(label: UILabel, text: String, offset: CGPoint) {
@@ -93,7 +113,6 @@ private extension ViewController {
 
   func changeFlight(to flight: Flight, animated: Bool = false) {
 		// populate the UI with the next flight's data
-    background.image = UIImage(named: flight.weatherImageName)
     originLabel.text = flight.origin
     destinationLabel.text = flight.destination
     flightNumberLabel.text = flight.number
@@ -102,9 +121,12 @@ private extension ViewController {
     summary.text = flight.summary
 
     if animated {
-      // TODO: Call your animation
+			fade(
+				to: UIImage(named: flight.weatherImageName)!,
+				showEffects: flight.showWeatherEffects
+			)
     } else {
-
+			background.image = UIImage(named: flight.weatherImageName)
     }
     
     // schedule next flight
