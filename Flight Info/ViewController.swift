@@ -237,7 +237,30 @@ private extension ViewController {
   }
   
   func changeSummary(to summaryText: String) {
-		//TODO: Animate the summary text
+		UIView.animateKeyframes(
+			withDuration: 1,
+			delay: 0,
+			animations: { [summary = self.summary!] in
+				UIView.addKeyframe(
+					withRelativeStartTime: 0,
+					relativeDuration: 0.45, 
+					animations: {
+						summary.center .y -= 100
+					}
+				)
+				UIView.addKeyframe(
+					withRelativeStartTime: 0.5,
+					relativeDuration: 0.45,
+					animations: {
+						summary.center .y += 100
+					}
+				)
+			}
+		)
+		
+		delay(seconds: 0.5, execute: {
+			self.summary.text = summaryText
+		})
   }
 
   func changeFlight(to flight: Flight, animated: Bool = false) {
@@ -245,7 +268,7 @@ private extension ViewController {
     flightNumberLabel.text = flight.number
     gateNumberLabel.text = flight.gateNumber
     
-    summary.text = flight.summary
+    
 
     if animated {
 			fade(
@@ -269,11 +292,14 @@ private extension ViewController {
 			
 			depart()
 			
+			changeSummary(to: flight.summary)
+			
     } else {
 			background.image = UIImage(named: flight.weatherImageName)
 			originLabel.text = flight.origin
 			destinationLabel.text = flight.destination
 			statusLabel.text = flight.status
+			summary.text = flight.summary
     }
     
     // schedule next flight
