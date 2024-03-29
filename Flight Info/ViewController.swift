@@ -103,7 +103,42 @@ private extension ViewController {
   }
   
   func move(label: UILabel, text: String, offset: CGPoint) {
-    //TODO: Animate a label's translation property
+    // Create and set up temp label
+		let tempLabel = duplicate(label)
+		tempLabel.text = text
+		tempLabel.transform = .init(translationX: offset.x, y: offset.y)
+		tempLabel.alpha = 0
+		view.addSubview(tempLabel)
+		
+		// Fade out and translate real label
+		UIView.animate(
+			withDuration: 0.5,
+			delay: 0,
+			options: .curveEaseIn,
+			animations: {
+				label.transform = .init(translationX: offset.x, y: offset.y)
+				label.alpha = 0
+			}
+		)
+		
+		// Fade in and translate temp label
+		UIView.animate(
+			withDuration: 0.25,
+			delay: 0.2,
+			options: .curveEaseIn,
+			animations: {
+				tempLabel.alpha = 1
+				tempLabel.transform = .identity
+			},
+			completion: { _ in
+				// Update real label and remove temp label
+				label.text = text
+				label.transform = .identity
+				label.alpha = 1
+				tempLabel.removeFromSuperview()
+			}
+		)
+		
   }
   
   func cubeTransition(label: UILabel, text: String) {
@@ -120,8 +155,6 @@ private extension ViewController {
 
   func changeFlight(to flight: Flight, animated: Bool = false) {
 		// populate the UI with the next flight's data
-    originLabel.text = flight.origin
-    destinationLabel.text = flight.destination
     flightNumberLabel.text = flight.number
     gateNumberLabel.text = flight.gateNumber
     statusLabel.text = flight.status
@@ -132,8 +165,15 @@ private extension ViewController {
 				to: UIImage(named: flight.weatherImageName)!,
 				showEffects: flight.showWeatherEffects
 			)
+			
+			let offset = CGPoint(x: -80, y: 0)
+			move(label: originLabel, text: flight.origin, offset: offset)
+			move(label: destinationLabel, text: flight.destination, offset: offset)
+			
     } else {
 			background.image = UIImage(named: flight.weatherImageName)
+			originLabel.text = flight.origin
+			destinationLabel.text = flight.destination
     }
     
     // schedule next flight
