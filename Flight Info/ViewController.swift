@@ -166,9 +166,17 @@ private extension ViewController {
 				showEffects: flight.showWeatherEffects
 			)
 			
-			let offset = CGPoint(x: -80, y: 0)
-			move(label: originLabel, text: flight.origin, offset: offset)
-			move(label: destinationLabel, text: flight.destination, offset: offset)
+			move(
+				label: originLabel,
+				text: flight.origin,
+				offset: .init(x: flight.showWeatherEffects ? 80 : -80, y: 0)
+			)
+			
+			move(
+				label: destinationLabel,
+				text: flight.destination,
+				offset: .init(x: 0, y: flight.showWeatherEffects ? 50 : -50)
+			)
 			
     } else {
 			background.image = UIImage(named: flight.weatherImageName)
